@@ -1,0 +1,11 @@
+key,type,encoding,value
+bnoNamespace,namespace,,
+deviceId,data,u16,1005
+deviceLoc,data,u8,5
+test,data,string,
+iter,data,u16,
+netConfig,namespace,,
+ssid,data,string,I went to Portland and got VD
+pwd,data,string,JasonHeather!@12
+srv,data,string,10.32.1.5
+port,data,string,8080

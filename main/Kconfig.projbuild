@@ -1,0 +1,57 @@
+menu "BnoMaster Config"
+
+config ENABLE_MESH_WIFI
+    bool "Enable mesh wifi instead of simple"
+    help
+        Select this if the sensor is ready to be integrated with others.
+
+config MESH_CHANNEL
+    int "Mesh channel"
+    range 0 14
+    default 0
+    depends on ENABLE_MESH_WIFI
+    help
+        Default mesh channel to use.
+
+config MESH_AP_PASSWD
+    string "SoftAP password"
+    default "password"
+    depends on ENABLE_MESH_WIFI
+    help
+        Soft access point password.
+
+config MESH_AP_CONNECTIONS
+    int "Number of softAP connections"
+    default 8
+    depends on ENABLE_MESH_WIFI
+    help
+        Max number of softAP connections.
+
+choice
+    bool "Mesh AP Authentication Mode"
+    default WIFI_AUTH_WPA2_PSK
+    help
+        Mesh authentication mode.
+
+    config WIFI_AUTH_OPEN
+        bool "WIFI_AUTH_OPEN"
+    config WIFI_AUTH_WPA_PSK
+        bool "WIFI_AUTH_WPA_PSK"
+    config WIFI_AUTH_WPA2_PSK
+        bool "WIFI_AUTH_WPA2_PSK"
+    config WIFI_AUTH_WPA_WPA2_PSK
+        bool "WIFI_AUTH_WPA_WPA2_PSK"
+endchoice
+
+config MESH_AP_AUTHMODE
+    int
+    default 0 if WIFI_AUTH_OPEN
+    default 2 if WIFI_AUTH_WPA_PSK
+    default 3 if WIFI_AUTH_WPA2_PSK
+    default 4 if WIFI_AUTH_WPA_WPA2_PSK
+    depends on ENABLE_MESH_WIFI
+    help
+        Mesh AP authentication mode.
+
+endmenu
+

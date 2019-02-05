@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "cstddef": "cpp",
+        "map": "cpp",
+        "initializer_list": "cpp",
+        "ostream": "cpp",
+        "bitset": "cpp"
+    },
+    "python.linting.enabled": false,
+    "C_Cpp.dimInactiveRegions": true,
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false
+}

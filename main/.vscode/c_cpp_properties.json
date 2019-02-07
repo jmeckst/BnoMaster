@@ -8,6 +8,8 @@
                 "~/esp/esp-idf/components/freertos/include",
                 "~/esp/esp-idf/components/driver/include",
                 "~/esp/esp-idf/components/driver/include/driver",
+                "/home/jmeckst/esp/esp-idf/components/esp_ringbuf/include/freertos/",
+                "/home/jmeckst/esp/esp-idf/components/lwip/port/esp32/include/",
                 "~/esp/esp-idf/components/soc/include",
                 "~/esp/esp-idf/components/soc/esp32/include",
                 "~/esp/esp-idf/components/newlib/include",
@@ -26,7 +28,8 @@
                 "/usr/include/linux",
                 "/usr/include/c++/5",
                 "/usr/include/c++/5/tr1",
-                "/home/jason/esp/esp-idf/components/spiffs/test_spiffs_host/sdkconfig"
+                "/home/jason/esp/esp-idf/components/spiffs/test_spiffs_host/sdkconfig",
+                "/home/jmeckst/esp/esp-idf/components/esp_ringbuf/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -6,7 +6,7 @@
 //!
 //!
 #pragma once
-#include "../../main/defines.h"
+#include "../../main/bno.h"
 
 
 namespace WIFI {

@@ -9,5 +9,6 @@
     "python.linting.enabled": false,
     "C_Cpp.dimInactiveRegions": true,
     "workbench.editor.enablePreview": false,
-    "workbench.editor.enablePreviewFromQuickOpen": false
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "C_Cpp.intelliSenseEngineFallback": "Disabled"
 }

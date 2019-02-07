@@ -14,7 +14,7 @@
 //! \params <T *destination, size_t len> buffer to zero out, length of buffer.
 //!
 template <typename T>
-void ZeroMemory(T *destination, size_t length)
+void ZeroMemory(T *destination, int length)
 {
     char *dest = reinterpret_cast<char *>(destination);
     fill(dest, dest + length, '\0');
@@ -25,8 +25,8 @@ void ZeroMemory(T *destination, size_t length)
 //!         to the destination parameter. Casting the void pointer is automatic.
 //! \params <T *destination, source, size_t len>destination and source buffers, length.
 //!
-template<typename T>
-void CopyMemory(T *destination, T* source, size_t length)
+template<typename D, typename S>
+void CopyMemory(D *destination, S* source, int length)
 {
     char *src = reinterpret_cast<char *>(source);
     char *dst = reinterpret_cast<char *>(destination);

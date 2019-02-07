@@ -10,13 +10,18 @@
 
 //! \brief Globals and constants
 //!
-static const uint8_t      MESH_ID[6]       = { 0x77, 0x77, 0x77, 0x77, 0x77, 0x77 };
-static EventGroupHandle_t meshEventGroup;
-const  int                meshStartBit     = BIT0;
-const  int                meshConnectedBit = BIT1;
+EventGroupHandle_t meshEventGroup;
+const byte         macAddr[6]       = { 0x7A, 0x69, 0xDE, 0xAD, 0xBE, 0xEF };
+const int          meshStartBit     = BIT0;
+const int          meshConnectedBit = BIT1;
 
 extern BnoModule bno;
 
+
+void ScanHandler(int num)
+{
+
+}
 
 //! \fn     EventHandler
 //! \brief  This static function intercepts system events regarding the wifi 
@@ -24,9 +29,46 @@ extern BnoModule bno;
 //! \params void* and system_event_t.
 //! \return esp_error_t code.
 //!
-static error MeshEventHandler(mesh_event_t event)
+void MeshEventHandler(mesh_event_t event)
 {
-    
+    switch (event.id) {
+    case MESH_EVENT_STARTED:
+        wifi_scan_config_t scanConfig = {};
+        scanConfig.show_hidden        = true;
+        scanConfig.scan_type          = WIFI_SCAN_TYPE_PASSIVE;
+
+        esp_mesh_set_self_organized(0, 0);
+        esp_wifi_scan_stop();
+        esp_wifi_scan_start(&scanConfig, 0);
+
+        xEventGroupSetBits(meshEventGroup, meshStartBit);
+        break;
+    case MESH_EVENT_STOPPED:
+        xEventGroupClearBits(meshEventGroup, meshStartBit);
+        break;
+    case MESH_EVENT_NO_PARENT_FOUND:
+        // TODO : stuff
+        break;
+    case MESH_EVENT_PARENT_CONNECTED:
+        if (esp_mesh_is_root())
+            tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
+        xEventGroupSetBits(meshEventGroup, meshConnectedBit);
+        break;
+    case MESH_EVENT_PARENT_DISCONNECTED:
+        if (event.info.disconnected.reason == WIFI_REASON_ASSOC_TOOMANY) {
+            esp_wifi_scan_stop();
+            scanConfig.show_hidden = 1;
+            scanConfig.scan_type   = WIFI_SCAN_TYPE_PASSIVE;
+            esp_wifi_scan_start(&scanConfig, 0);
+        }
+        xEventGroupClearBits(meshEventGroup, meshConnectedBit);
+        break;
+    case MESH_EVENT_SCAN_DONE:
+        ScanHandler(event.info.scan_done.number);
+        break;
+    default:
+        break;
+    }
 }
 
 //! \fn    WifiInit
@@ -38,7 +80,7 @@ void WIFI::WifiInit()
     wifi_init_config_t wifiCfg = WIFI_INIT_CONFIG_DEFAULT();
     error              err     = {};
 
-    wifiEventGroup = xEventGroupCreate();
+    meshEventGroup = xEventGroupCreate();
 
     if ((err = nvs_flash_init()) == ESP_ERR_NVS_NO_FREE_PAGES)
     {
@@ -76,13 +118,13 @@ void WIFI::WifiConnect(string sid, string pwd)
     meshCfg.router.ssid_len = sid.length();
     meshCfg.mesh_ap.max_connection = CONFIG_MESH_AP_CONNECTIONS;
 
-    CopyMemory(&meshCfg.mesh_id, MESH_ID, 6);
-    CopyMemory(&meshCfg.router.ssid, sid.c_str(), sid.length());
-    CopyMemory(&meshCfg.router.password, pwd.c_str(), pwd.length());
-    CopyMemory(&meshCfg.mesh_ap.password, meshPwd.c_str(), meshPwd.length());
+    CopyMemory(reinterpret_cast<byte*>(&meshCfg.mesh_id), macAddr, 6);
+    CopyMemory(meshCfg.router.ssid, sid.c_str(), sid.length());
+    CopyMemory(meshCfg.router.password, pwd.c_str(), pwd.length());
+    CopyMemory(meshCfg.mesh_ap.password, meshPwd.c_str(), meshPwd.length());
     
     esp_mesh_set_ap_authmode(CONFIG_MESH_AP_AUTHMODE);
-    esp_mesh_set_config(&cfg);
+    esp_mesh_set_config(&meshCfg);
     esp_mesh_start();
 }
 

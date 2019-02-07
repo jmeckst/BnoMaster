@@ -16,6 +16,7 @@
 #include "driver/uart.h"
 #include "esp_event_loop.h"
 #include "esp_log.h"
+#include "esp_mesh.h"
 #include "esp_wifi.h"
 #include "nvs_flash.h"
 #include "lwip/sockets.h"

@@ -119,3 +119,23 @@ wifiStatus WIFI::WifiGetStatus()
         return WIFI_STATUS_DISCONNECTED;
 }
 
+//! \fn     WifiIsMeshEnabled
+//! \brief  Indicates whether mesh networking is enabled on the calling
+//!         node.
+//! \return <bool> true of false.
+//!
+bool WIFI::MESH::WifiIsMeshEnabled()
+{
+    return false;
+}
+
+//! \fn     WiFiMeshIsRoot
+//! \brief  Indicates whether the calling node is root node, or not,
+//!         when mesh networking is enabled.
+//! \return <bool> true or false.
+//!
+bool WIFI::MESH::WifiIsRootNode()
+{
+    return true;
+}
+

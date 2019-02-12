@@ -10,26 +10,42 @@
 
 
 namespace WIFI {
-    //! \fn    WifiInit
-    //! \brief Initializes the wifi adapter.
+    //! \fn     WifiInit
+    //! \brief  Initializes the wifi adapter.
     //!
-    void       WifiInit();
+    void        WifiInit();
 
-    //! \fn    WifiConnect
-    //! \brief Connects the esp32 to the configured wifi ssid.
-    //! \param string ssid, string password.
+    //! \fn     WifiConnect
+    //! \brief  Connects the esp32 to the configured wifi ssid.
+    //! \param  string ssid, string password.
     //!
-    void       WifiConnect(string sid, string pwd);
+    void        WifiConnect(string sid, string pwd);
 
-    //! \fn    WifiDisconnect
-    //! \brief Disconnects the esp32 from the configured wifi ssid.
+    //! \fn     WifiDisconnect
+    //! \brief  Disconnects the esp32 from the configured wifi ssid.
     //!
-    void       WifiDisconnect();
+    void        WifiDisconnect();
 
     //! \fn     WifiGetStatus
     //! \brief  Gets the current status of the wifi connection.
     //! \return wifiStatus enum value.
     //!
-    wifiStatus WifiGetStatus();
+    wifiStatus  WifiGetStatus();
+
+    namespace MESH {
+        //! \fn     WifiIsMeshEnabled
+        //! \brief  Indicates whether mesh networking is enabled on the calling
+        //!         node.
+        //! \return <bool> true of false.
+        //!
+        bool    WifiIsMeshEnabled();
+
+        //! \fn     WiFiMeshIsRoot
+        //! \brief  Indicates whether the calling node is root node, or not,
+        //!         when mesh networking is enabled.
+        //! \return <bool> true or false.
+        //!
+        bool    WifiIsRootNode();
+    }
 }
 

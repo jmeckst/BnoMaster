@@ -31,5 +31,21 @@ namespace WIFI {
     //! \return wifiStatus enum value.
     //!
     wifiStatus WifiGetStatus();
+
+    namespace MESH {
+        //! \fn     WifiIsMeshEnabled
+        //! \brief  Indicates whether mesh networking is enabled on the calling
+        //!         node.
+        //! \return <bool> true of false.
+        //!
+        bool    WifiIsMeshEnabled();
+
+        //! \fn     WiFiMeshIsRoot
+        //! \brief  Indicates whether the calling node is root node, or not,
+        //!         when mesh networking is enabled.
+        //! \return <bool> true or false.
+        //!
+        bool    WifiIsRootNode();
+    }
 }
 

@@ -6,6 +6,6 @@ test,data,string,
 iter,data,u16,
 netConfig,namespace,,
 ssid,data,string,I went to Portland and got VD
-pwd,data,string,JasonHeather!@12
+pwd,data,string,password123
 srv,data,string,10.32.1.5
 port,data,string,8080

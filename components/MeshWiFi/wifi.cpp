@@ -10,17 +10,78 @@
 
 //! \brief Globals and constants
 //!
-EventGroupHandle_t meshEventGroup;
-const byte         macAddr[6]       = { 0x7A, 0x69, 0xDE, 0xAD, 0xBE, 0xEF };
-const int          meshStartBit     = BIT0;
-const int          meshConnectedBit = BIT1;
+egHandle         meshEventGroup   = {};
+const int        meshStartBit     = BIT0;
+const int        meshConnectedBit = BIT1;
+const TickType_t ticksToWait      = 500 / portTICK_PERIOD_MS;
+
+string routerSSID;
+string routerPSWD;
+addr   macAddr;
 
 extern BnoModule bno;
 
 
 void ScanHandler(int num)
 {
+    int  ieLen       = 0;
+    bool parentFound = false;
+    mesh_type_t        myType       = MESH_IDLE;
+    mesh_assoc_t       assoc        = {};
+    mesh_assoc_t       parentAssoc  = {};
+    wifi_ap_record_t   record       = {};
+    wifi_ap_record_t   parentRecord = {};
+    wifi_config_t      parent       = {};
+    wifi_scan_config_t scanConfig   = {};
 
+    for (int i = 0; i < num; i++) {
+        esp_mesh_scan_get_ap_ie_len(&ieLen);
+        esp_mesh_scan_get_ap_record(&record, &assoc);
+        if (ieLen == sizeof(assoc) && !esp_mesh_is_root())
+        {
+            array<byte, 6> tempAddr;
+            copy(begin(assoc.mesh_id), end(assoc.mesh_id), begin(tempAddr));
+            if (tempAddr == rootMacAddr)
+            {
+                parentFound = true;
+                CopyMemory(&parentRecord, &record, sizeof(record));
+                CopyMemory(&parentAssoc, &assoc, sizeof(assoc));
+                myType = MESH_LEAF;
+                break;
+            }
+        }else if (ieLen != sizeof(assoc) && esp_mesh_is_root()) {
+            string sid((char *)record.ssid);
+            if (sid.compare(routerSSID) == 0)
+            {
+                parentFound = true;
+                myType      = MESH_ROOT;
+                CopyMemory(&parentRecord, &record, sizeof(record));
+                break;
+            }
+        }
+    }
+    esp_mesh_flush_scan_result();
+
+    if (parentFound)
+    {
+        parent.sta.channel = parentRecord.primary;
+        CopyMemory(&parent.sta.ssid, &parentRecord.ssid, sizeof(parentRecord.ssid));
+        parent.sta.bssid_set = 1;
+        CopyMemory(&parent.sta.bssid, parentRecord.bssid, 6);
+        esp_mesh_set_ap_authmode(parentRecord.authmode);
+        if (parentRecord.authmode != WIFI_AUTH_OPEN)
+        {
+            string temp((myType == MESH_ROOT ? routerPSWD.c_str() : CONFIG_MESH_AP_PASSWD));
+            CopyMemory(&parent.sta.password, const_cast<char*>(temp.c_str()), temp.length());
+        }
+        esp_mesh_set_parent(&parent, (mesh_addr_t *)&parentAssoc.mesh_id, myType, esp_mesh_get_layer());
+
+    }else {
+        esp_wifi_scan_stop();
+        scanConfig.show_hidden = 1;
+        scanConfig.scan_type = WIFI_SCAN_TYPE_PASSIVE;
+        esp_wifi_scan_start(&scanConfig, 0);
+    }
 }
 
 //! \fn     EventHandler
@@ -31,11 +92,12 @@ void ScanHandler(int num)
 //!
 void MeshEventHandler(mesh_event_t event)
 {
+    wifi_scan_config_t scanConfig = {};
+
     switch (event.id) {
     case MESH_EVENT_STARTED:
-        wifi_scan_config_t scanConfig = {};
-        scanConfig.show_hidden        = true;
-        scanConfig.scan_type          = WIFI_SCAN_TYPE_PASSIVE;
+        scanConfig.show_hidden = true;
+        scanConfig.scan_type   = WIFI_SCAN_TYPE_PASSIVE;
 
         esp_mesh_set_self_organized(0, 0);
         esp_wifi_scan_stop();
@@ -81,6 +143,7 @@ void WIFI::WifiInit()
     error              err     = {};
 
     meshEventGroup = xEventGroupCreate();
+    macAddr        = bno.GetMac();
 
     if ((err = nvs_flash_init()) == ESP_ERR_NVS_NO_FREE_PAGES)
     {
@@ -110,22 +173,35 @@ void WIFI::WifiInit()
 //!
 void WIFI::WifiConnect(string sid, string pwd)
 {
-    mesh_cfg_t meshCfg = MESH_INIT_CONFIG_DEFAULT();
-    string     meshPwd(CONFIG_MESH_AP_PASSWD);
+    mesh_cfg_t  meshCfg = {};
+    string      meshPwd(CONFIG_MESH_AP_PASSWD);
+    EventBits_t eventBits = {};
+
+    routerSSID = sid;
+    routerPSWD = pwd;
 
     meshCfg.event_cb = &MeshEventHandler;
     meshCfg.channel  = CONFIG_MESH_CHANNEL;
     meshCfg.router.ssid_len = sid.length();
     meshCfg.mesh_ap.max_connection = CONFIG_MESH_AP_CONNECTIONS;
 
-    CopyMemory(reinterpret_cast<byte*>(&meshCfg.mesh_id), macAddr, 6);
-    CopyMemory(meshCfg.router.ssid, sid.c_str(), sid.length());
-    CopyMemory(meshCfg.router.password, pwd.c_str(), pwd.length());
-    CopyMemory(meshCfg.mesh_ap.password, meshPwd.c_str(), meshPwd.length());
+    CopyMemory(reinterpret_cast<byte*>(&meshCfg.mesh_id), macAddr.data(), 6);
+    CopyMemory(meshCfg.router.ssid, const_cast<char*>(routerSSID.c_str()), routerSSID.length());
+    CopyMemory(meshCfg.router.password, const_cast<char*>(routerPSWD.c_str()), routerPSWD.length());
+    CopyMemory(meshCfg.mesh_ap.password, const_cast<char*>(meshPwd.c_str()), meshPwd.length());
     
-    esp_mesh_set_ap_authmode(CONFIG_MESH_AP_AUTHMODE);
+    esp_mesh_set_ap_authmode(static_cast<wifi_auth_mode_t>(CONFIG_MESH_AP_AUTHMODE));
     esp_mesh_set_config(&meshCfg);
     esp_mesh_start();
+
+    while ((eventBits & meshConnectedBit) == 0)
+    {
+        cout << ".";
+        cout << std::flush;
+        eventBits = xEventGroupWaitBits(meshEventGroup, meshConnectedBit, pdFALSE, pdTRUE, ticksToWait);
+    }
+
+    cout << "ESP32 connected to SSID!" << endl;
 }
 
 //! \fn    WifiDisconnect
@@ -133,7 +209,7 @@ void WIFI::WifiConnect(string sid, string pwd)
 //!
 void WIFI::WifiDisconnect()
 {
-    esp_mesh_stop();
+    esp_mesh_disconnect();
 }
 
 //! \fn     WifiGetStatus

@@ -11,13 +11,15 @@
 //! -------------------------------------------------------------------------------------------- //
 //! \brief Typedefs and constants
 
-typedef uint8_t     byte;
-typedef uint16_t    word;
-typedef int         uerror;
-typedef esp_err_t   error;
-typedef int8_t      sbyte;
-typedef gpio_num_t  line;
-typedef uart_port_t uport;
+typedef uint8_t            byte;
+typedef uint16_t           word;
+typedef int                uerror;
+typedef esp_err_t          error;
+typedef int8_t             sbyte;
+typedef gpio_num_t         line;
+typedef uart_port_t        uport;
+typedef EventGroupHandle_t egHandle;
+typedef array<byte, 6>     addr;
 
 typedef struct testinfo {
     string test;
@@ -32,6 +34,7 @@ const string LENG = "Content-Length: \r\n";                 /*!< Content-Length,
 const string CONN = "Connection: Closed\r\n";               /*!< Connection, nothing further needed */
 const string NEWL = "\r\n";                                 /*!< newline for end of headers */
 
+const addr rootMacAddr{0x7A, 0x69, 0xDE, 0xAD, 0xBE, 0xEF};
 const byte BNO_ADDRESS_A = 0x28;
 const byte BNO_ADDRESS_B = 0x29;
 const byte BNO_ID        = 0xA0;

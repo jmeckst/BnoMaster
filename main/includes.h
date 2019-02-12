@@ -21,9 +21,13 @@
 #include "nvs_flash.h"
 #include "lwip/sockets.h"
 
+using std::array;
+using std::begin;
 using std::copy;
 using std::cout;
+using std::end;
 using std::endl;
+using std::equal;
 using std::fill;
 using std::initializer_list;
 using std::map;

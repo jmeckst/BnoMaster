@@ -82,6 +82,24 @@ bool BnoModule::Setup(bnoOpmode mode)
     return true;
 }
 
+//! \fn       GetMac
+//! \memberof BnoModule
+//! \brief    GetMac takes the device id and converts it to a 6 octet mac
+//!           address in hexadecimal. The first four octets are the same
+//!           for each sensor.
+//! \return   <addr> the std::array size 6
+//!
+addr BnoModule::GetMac()
+{
+    byte upper = deviceId >> 8;
+    byte lower = deviceId & 0xFF;
+
+    if (location == locChest)
+        return rootMacAddr;
+    else
+        return addr{0xDE, 0xAD, 0xBE, 0xEF, upper, lower};
+}
+
 //! \fn       GetReading
 //! \memberof BnoModule
 //! \brief    GetReading initiates retrieving an event that occurs on the IMU, 

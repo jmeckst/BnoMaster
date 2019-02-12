@@ -23,10 +23,14 @@ public:
     BnoModule(uport p, line tx, line rx);
     
     bool         Setup     (bnoOpmode mode);
+    addr         GetMac    ();
+    SensorEvent* GetReading(bnoVectorType typeOfData = QUATERNION);
+
+    /*!< inline public methods */
     bool         IsRoot    () { return deviceId == 1000; }
     bool         IsTest    () { return !test.test.empty(); }
     TESTINFO     GetTest   () { return test; }
-    SensorEvent* GetReading(bnoVectorType typeOfData = QUATERNION);
+    /*!< inline public methods */
 
 private:
     Quaternion*  ReadQuat  ();

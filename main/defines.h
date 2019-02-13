@@ -42,9 +42,6 @@ const byte BNO_ADDRESS_A = 0x28;
 const byte BNO_ADDRESS_B = 0x29;
 const byte BNO_ID        = 0xA0;
 const int  LOOPCOUNT     = 16;
-const int  RX_SIZE       = 1500;
-const int  TX_SIZE       = 1460;
-const int  MAX_NODES     = 8;
 
 const string NVS_PARTITION_NAME = "device_cfg";
 const string NVS_NSNAME_CONFIG  = "deviceConfig";

@@ -10,11 +10,15 @@
 
 //! \brief Globals and constants
 //!
-egHandle         meshEventGroup    = {};
-const int        meshStartBit      = BIT0;
-const int        meshConnectedBit  = BIT1;
-const int        childrenConnected = BIT2;
-const TickType_t ticksToWait       = 500 / portTICK_PERIOD_MS;
+egHandle  meshEventGroup    = {};
+const int meshStartBit      = BIT0;
+const int meshConnectedBit  = BIT1;
+const int childrenConnected = BIT2;
+const int RX_SIZE           = 1500;
+const int TX_SIZE           = 1460;
+const int MAX_NODES         = 8;
+
+const TickType_t ticksToWait = 500 / portTICK_PERIOD_MS;
 
 string routerSSID;
 string routerPSWD;

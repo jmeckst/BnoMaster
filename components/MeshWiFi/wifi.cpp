@@ -274,10 +274,10 @@ bool WIFI::MESH::WifiIsRootNode()
 //!
 void WIFI::MESH::WifiMeshTxMain(string data)
 {
-    byte        txBuf[TX_SIZE]    = {};
-    int         flag              = {};
-    int         tableSize         = {};
-    mesh_addr_t table[MAX_NODES]  = {};
+    byte        txBuf[TX_SIZE]   = {};
+    int         flag             = {};
+    int         tableSize        = {};
+    mesh_addr_t table[MAX_NODES] = {};
     mesh_data_t txData;
     error       result;
 
@@ -289,7 +289,7 @@ void WIFI::MESH::WifiMeshTxMain(string data)
     if (esp_mesh_is_root())
     {
         esp_mesh_get_routing_table((mesh_addr_t*)&table, MAX_NODES * 6, &tableSize);
-        flag = MESH_DATA_FROMDS;
+        flag = MESH_DATA_P2P;
     }
 
     if (!esp_mesh_is_root())
@@ -306,6 +306,29 @@ void WIFI::MESH::WifiMeshTxMain(string data)
 //!
 strings WIFI::MESH::WifiMeshRxMain()
 {
+    byte        rxBuf[RX_SIZE] = {};
+    int         flag           = {};
+    strings     response       = {};
+    error       result;
+
+    mesh_rx_pending_t pending  = {};
+    mesh_addr_t       from;
+    mesh_data_t       rxData;
+
+    rxData.data = rxBuf;
+    rxData.size = RX_SIZE;
+
+    esp_mesh_get_rx_pending(&pending);
     
+    for (int i = 0; i < pending.toSelf; i++)
+    {
+        result = esp_mesh_recv(&from, &rxData, 0, &flag, NULL, 0);
+        if (result != ESP_OK || rxData.size == 0)
+            continue;
+        string temp(reinterpret_cast<char*>(rxData.data));
+        response.push_back(temp);
+    }
+
+    return response;
 }
 

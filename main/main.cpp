@@ -76,10 +76,9 @@ extern "C" void app_main()
     
     while (1)
     {
-        quatern  = bno.GetReading();
-        jsonData = FormatDataToJson(initializer_list<SensorEvent*>{quatern});
+        quatern = bno.GetReading();
 
-        result = CreateReading(jsonData);
+        result  = CreateReading(initializer_list<SensorEvent*>{quatern});
         if (result != REST_OK)
             ParseRestError(result);
         
@@ -116,33 +115,27 @@ void ParseRestError(rerror r)
         break;
     case REST_REQUEST_ACCEL:
         e    = bno.GetReading(ACCELEROMETER);
-        json = FormatDataToJson(initializer_list<SensorEvent*>{e});
-        CreateReading(json);
+        CreateReading(initializer_list<SensorEvent*>{e});
         break;
     case REST_REQUEST_MAG:
         e    = bno.GetReading(MAGNETOMETER);
-        json = FormatDataToJson(initializer_list<SensorEvent*>{e});
-        CreateReading(json);
+        CreateReading(initializer_list<SensorEvent*>{e});
         break;
     case REST_REQUEST_GYRO:
         e    = bno.GetReading(GYROSCOPE);
-        json = FormatDataToJson(initializer_list<SensorEvent*>{e});
-        CreateReading(json);
+        CreateReading(initializer_list<SensorEvent*>{e});
         break;
     case REST_REQUEST_EULER:
         e    = bno.GetReading(EULER);
-        json = FormatDataToJson(initializer_list<SensorEvent*>{e});
-        CreateReading(json);
+        CreateReading(initializer_list<SensorEvent*>{e});
         break;
     case REST_REQUEST_LINEARA:
         e    = bno.GetReading(LINEARACCEL);
-        json = FormatDataToJson(initializer_list<SensorEvent*>{e});
-        CreateReading(json);
+        CreateReading(initializer_list<SensorEvent*>{e});
         break;
     case REST_REQUEST_GRAVITY:
         e    = bno.GetReading(GRAVITY);
-        json = FormatDataToJson(initializer_list<SensorEvent*>{e});
-        CreateReading(json);
+        CreateReading(initializer_list<SensorEvent*>{e});
         break;
     case REST_NO_WIFI:
         cout << "REST error: not connected to WiFi." << endl;
@@ -168,8 +161,7 @@ void RunTest(TESTINFO ti)
     for (int i = 0; i < ti.numTests; i++)
     {
         event    = bno.GetReading(stringToVector.at(ti.test));
-        jsonData = FormatDataToJson(initializer_list<SensorEvent*>{event});
-        result = CreateReading(jsonData);
+        result   = CreateReading(initializer_list<SensorEvent*>{event});
         if (result != REST_OK)
             ParseRestError(result);
         Pause(50);

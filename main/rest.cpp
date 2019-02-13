@@ -12,13 +12,68 @@
 extern string SRV;
 extern string PORT;
 
+//! \fn     FormatDataToJson
+//! \brief  This function takes the event objects, reads their x, y, and z 
+//!         values, and formats the payload using proper json. In addition,
+//!         extra json array items can be passed from mesh leaf-nodes in the
+//!         form of a vector<string>. This function handles formating just the
+//!         leaf-node's array items, or the root-node's total readings which
+//!         is in complete json format.
+//! \param  <initializer_list> Any number of event objects.
+//!         <vector<string>    extra json array items.
+//!         <bool>             indicates whether root node or leaf node.
+//! \return <string> A properly formated json string.
+//!
+string FormatDataToJson(eventList events, strings extra, bool isLeafNode = false)
+{
+    ostringstream innerData;
+    ostringstream outerData;
+    int i = 1;
+
+    /*!< leaf-node only section for json array items */
+    for (auto e : events)
+    {
+        innerData << "\t\t{";
+        innerData << "\"type\":\"" << e->GetName()         << "\", ";
+        innerData << "\"body\":\"" << e->GetLocation()     << "\", ";
+        innerData << "\"time\":\"" << esp_timer_get_time() << "\", ";
+        if (e->GetObject().IsQuaternion())
+            innerData << "\"W\":\"" << e->GetObject().GetEventW() << "\", ";
+        innerData << "\"X\":\"" << e->GetObject().GetEventX() << "\", ";
+        innerData << "\"Y\":\"" << e->GetObject().GetEventY() << "\", ";
+        innerData << "\"Z\":\"" << e->GetObject().GetEventZ() << "\"";
+        innerData << "}";
+        if (i < events.size())
+            innerData << ",\n";
+        i++;
+    }
+    if (isLeafNode)
+        return innerData.str();
+
+    /*!< root-node section to encapsulate json array items with complete json syntax */
+    outerData << "{\n\t\"things\":[\n" << innerData.str();
+
+    /*!< add json array items sent from leaf nodes */
+    if (!extra.empty())
+    {
+        outerData << ",\n";
+        for (auto e : extra)
+            outerData << e.data();
+        outerData << ",\n";
+    }
+
+    outerData << "\n\t]\n}";
+
+    return outerData.str();
+}
+
 //! \fn     BuildPostHeaders
 //! \brief  This function puts together the appropriate headers necessary 
 //!         for a POST request and returns them in a string.
 //! \param  <size_t> Length for the Content-Length field.
 //! \return <string> Completed POST headers.
 //!
-string BuildPostHeaders(size_t len)
+string BuildPostHeaders(int len)
 {
     string tempHost = HOST;
     string tempLeng = LENG;
@@ -59,15 +114,24 @@ string ExtractHttpFieldValue(string field, string response)
 //! \param  <string> The json data to POST.
 //! \return <bool> Success or failure.
 //!
-rerror CreateReading(string data)
+rerror CreateReading(eventList events)
 {
-    if (WIFI::WifiGetStatus() == WIFI_STATUS_CONNECTED)
+    const bool leafNodeTrue = true;
+
+    string data;
+    rerror result = REST_OK;
+
+    if (WIFI::WifiGetStatus() == WIFI_STATUS_DISCONNECTED)
+        return REST_NO_WIFI;
+    
+    if (!WIFI::MESH::WifiIsMeshEnabled() || WIFI::MESH::WifiIsRootNode())
     {
+        // TODO : receive from leaf_nodes here. i.e. WifiMeshRxMain
+        data                = FormatDataToJson(events, strings());
         string request      = {};
         string post         = BuildPostHeaders(data.length());
         char   recvBuf[500] = {};
         int    sock         = socket(AF_INET, SOCK_STREAM, 0);
-        rerror result       = REST_OK;
 
         sockaddr_in addr;
         addr.sin_family      = AF_INET;
@@ -96,9 +160,15 @@ rerror CreateReading(string data)
 
         close(sock);
 
+        // TODO : reply to leaf_nodes here. i.e. WifiMeshTxMain
+
         return result;
+    }else {
+        // TODO : send to root_node here. i.e. WifiMeshTxMain
+        // TODO : receive response from root_node here. i.e. WifiMeshRxMain
     }
-    return REST_NO_WIFI;
+
+    return REST_OK;
 }
 
 //! \fn     ReadReading
@@ -127,39 +197,5 @@ rerror UpdateReading()
 rerror DeleteReading()
 {
     return REST_OK;
-}
-
-//! \fn     FormatDataToJson
-//! \brief  This function takes the event objects, reads their x, y, and z 
-//!         values, and formats the payload using proper json.
-//! \param  <initializer_list> Any number of event objects.
-//! \return <string> A properly formated json string.
-//!
-string FormatDataToJson(initializer_list<SensorEvent*> events)
-{
-    ostringstream data;
-    size_t        i = 1;
-
-    data << "{\n\t\"things\":[\n";
-
-    for (auto e : events)
-    {
-        data << "\t\t{";
-        data << "\"type\":\"" << e->GetName()         << "\", ";
-        data << "\"body\":\"" << e->GetLocation()     << "\", ";
-        data << "\"time\":\"" << esp_timer_get_time() << "\", ";
-        if (e->GetObject().IsQuaternion())
-            data << "\"W\":\"" << e->GetObject().GetEventW() << "\", ";
-        data << "\"X\":\"" << e->GetObject().GetEventX() << "\", ";
-        data << "\"Y\":\"" << e->GetObject().GetEventY() << "\", ";
-        data << "\"Z\":\"" << e->GetObject().GetEventZ() << "\"";
-        data << "}";
-        if (i < events.size())
-            data << ",\n";
-        i++;
-    }
-    data << "\n\t]\n}";
-
-    return data.str();
 }
 

@@ -10,6 +10,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -33,4 +34,5 @@ using std::initializer_list;
 using std::map;
 using std::ostringstream;
 using std::string;
+using std::vector;
 

@@ -18,8 +18,11 @@ typedef esp_err_t          error;
 typedef int8_t             sbyte;
 typedef gpio_num_t         line;
 typedef uart_port_t        uport;
-typedef EventGroupHandle_t egHandle;
 typedef array<byte, 6>     addr;
+typedef vector<string>     strings;
+typedef EventGroupHandle_t egHandle;
+
+typedef initializer_list<class SensorEvent*> eventList;
 
 typedef struct testinfo {
     string test;
@@ -39,6 +42,9 @@ const byte BNO_ADDRESS_A = 0x28;
 const byte BNO_ADDRESS_B = 0x29;
 const byte BNO_ID        = 0xA0;
 const int  LOOPCOUNT     = 16;
+const int  RX_SIZE       = 1500;
+const int  TX_SIZE       = 1460;
+const int  MAX_NODES     = 8;
 
 const string NVS_PARTITION_NAME = "device_cfg";
 const string NVS_NSNAME_CONFIG  = "deviceConfig";

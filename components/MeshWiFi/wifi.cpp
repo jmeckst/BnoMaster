@@ -10,10 +10,11 @@
 
 //! \brief Globals and constants
 //!
-egHandle         meshEventGroup   = {};
-const int        meshStartBit     = BIT0;
-const int        meshConnectedBit = BIT1;
-const TickType_t ticksToWait      = 500 / portTICK_PERIOD_MS;
+egHandle         meshEventGroup    = {};
+const int        meshStartBit      = BIT0;
+const int        meshConnectedBit  = BIT1;
+const int        childrenConnected = BIT2;
+const TickType_t ticksToWait       = 500 / portTICK_PERIOD_MS;
 
 string routerSSID;
 string routerPSWD;
@@ -22,6 +23,11 @@ addr   macAddr;
 extern BnoModule bno;
 
 
+//! \fn    ScanHandler
+//! \brief This function handles checking each access point found during the
+//!        ap scan, and locates the parent node for either root or a leaf node.
+//! \param <int> number of access points scanned.
+//!
 void ScanHandler(int num)
 {
     int  ieLen       = 0;
@@ -107,6 +113,12 @@ void MeshEventHandler(mesh_event_t event)
         break;
     case MESH_EVENT_STOPPED:
         xEventGroupClearBits(meshEventGroup, meshStartBit);
+        break;
+    case MESH_EVENT_CHILD_CONNECTED:
+        static int children = 0;
+        children++;
+        if (children == MAX_NODES)
+            xEventGroupSetBits(meshEventGroup, childrenConnected);
         break;
     case MESH_EVENT_NO_PARENT_FOUND:
         // TODO : stuff
@@ -202,6 +214,13 @@ void WIFI::WifiConnect(string sid, string pwd)
     }
 
     cout << "ESP32 connected to SSID!" << endl;
+
+    if (esp_mesh_is_root())
+    {
+        cout << "Root: waiting for leaf nodes to connect!" << endl;
+        while ((eventBits & childrenConnected) == 0)
+            eventBits = xEventGroupWaitBits(meshEventGroup, childrenConnected, pdFALSE, pdTRUE, ticksToWait);
+    }
 }
 
 //! \fn    WifiDisconnect
@@ -242,5 +261,47 @@ bool WIFI::MESH::WifiIsMeshEnabled()
 bool WIFI::MESH::WifiIsRootNode()
 {
     return MESH_ROOT == esp_mesh_get_type();
+}
+
+//! \fn     WifiMeshTxMain
+//! \brief  This function handles sending data to other mesh nodes using the esp-idf
+//!         mesh API function calls.
+//! \param  <string> the data to send.
+//!
+void WIFI::MESH::WifiMeshTxMain(string data)
+{
+    byte        txBuf[TX_SIZE]    = {};
+    int         flag              = {};
+    int         tableSize         = {};
+    mesh_addr_t table[MAX_NODES]  = {};
+    mesh_data_t txData;
+    error       result;
+
+    txData.data  = txBuf;
+    txData.size  = TX_SIZE;
+    txData.proto = (esp_mesh_is_root() ? MESH_PROTO_HTTP : MESH_PROTO_JSON);
+    CopyMemory(txData.data, const_cast<char*>(data.c_str()), data.length());
+
+    if (esp_mesh_is_root())
+    {
+        esp_mesh_get_routing_table((mesh_addr_t*)&table, MAX_NODES * 6, &tableSize);
+        flag = MESH_DATA_FROMDS;
+    }
+
+    if (!esp_mesh_is_root())
+        tableSize++;
+    
+    for (int i = 0; i < tableSize; i++)
+        result = esp_mesh_send(&table[i], &txData, flag, NULL, 0);
+}
+
+//! \fn     WifiMeshRxMain
+//! \brief  This function handles receiving data from other mesh nodes using the esp-idf
+//!         mesh API function calls.
+//! \return <vector<string>> the json array items
+//!
+strings WIFI::MESH::WifiMeshRxMain()
+{
+    
 }
 

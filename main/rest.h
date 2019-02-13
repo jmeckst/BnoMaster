@@ -21,7 +21,7 @@
 //! \param  <string> The json data to POST.
 //! \return <bool> Success or failure.
 //!
-rerror CreateReading(string data);
+rerror CreateReading(eventList events);
 
 //! \fn     ReadReading
 //! \brief  This function handles GET'ing json data from the REST server.
@@ -41,12 +41,4 @@ rerror UpdateReading();
 //! \return <bool> Success or failure.
 //!
 rerror DeleteReading();
-
-//! \fn     FormatDataToJson (overload 1)
-//! \brief  This function takes the event objects, reads their x, y, and z 
-//!         values, and formats the payload using proper json.
-//! \param  <initializer_list> Any number of event objects.
-//! \return <string> A properly formated json string.
-//!
-string FormatDataToJson(initializer_list<SensorEvent*> events);
 

@@ -139,3 +139,23 @@ bool WIFI::MESH::WifiIsRootNode()
     return true;
 }
 
+//! \fn     WifiMeshTxMain
+//! \brief  This function handles sending data to other mesh nodes using the esp-idf
+//!         mesh API function calls.
+//! \param  <string> the data to send.
+//!
+void WIFI::MESH::WifiMeshTxMain(string data)
+{
+    
+}
+
+//! \fn     WifiMeshRxMain
+//! \brief  This function handles receiving data from other mesh nodes using the esp-idf
+//!         mesh API function calls.
+//! \return <vector<string>> the json array items
+//!
+strings WIFI::MESH::WifiMeshRxMain()
+{
+    return strings();
+}
+

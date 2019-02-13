@@ -118,17 +118,18 @@ rerror CreateReading(eventList events)
 {
     const bool leafNodeTrue = true;
 
-    string data;
-    rerror result = REST_OK;
+    string  data     = {};
+    string  request  = {};
+    strings meshData = {};
+    rerror  result   = REST_OK;
 
     if (WIFI::WifiGetStatus() == WIFI_STATUS_DISCONNECTED)
         return REST_NO_WIFI;
     
     if (!WIFI::MESH::WifiIsMeshEnabled() || WIFI::MESH::WifiIsRootNode())
     {
-        // TODO : receive from leaf_nodes here. i.e. WifiMeshRxMain
-        data                = FormatDataToJson(events, strings());
-        string request      = {};
+        meshData            = WIFI::MESH::WifiMeshRxMain();
+        data                = FormatDataToJson(events, meshData);
         string post         = BuildPostHeaders(data.length());
         char   recvBuf[500] = {};
         int    sock         = socket(AF_INET, SOCK_STREAM, 0);
@@ -160,15 +161,18 @@ rerror CreateReading(eventList events)
 
         close(sock);
 
-        // TODO : reply to leaf_nodes here. i.e. WifiMeshTxMain
-
-        return result;
+        WIFI::MESH::WifiMeshTxMain(request);
     }else {
-        // TODO : send to root_node here. i.e. WifiMeshTxMain
-        // TODO : receive response from root_node here. i.e. WifiMeshRxMain
+        data = FormatDataToJson(events, strings(), leafNodeTrue);
+        WIFI::MESH::WifiMeshTxMain(data);
+        
+        meshData = WIFI::MESH::WifiMeshRxMain();
+        request  = meshData.front();
+        if (!request.empty())
+            result = static_cast<rerror>(atoi(request.c_str()));
     }
 
-    return REST_OK;
+    return result;
 }
 
 //! \fn     ReadReading

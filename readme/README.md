@@ -1,2 +1,0 @@
-# BnoMaster
-Work in progress!

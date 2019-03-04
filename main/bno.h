@@ -23,7 +23,6 @@ public:
     BnoModule(uport p, line tx, line rx);
     
     bool         Setup     (bnoOpmode mode);
-    addr         GetMac    ();
     SensorEvent* GetReading(bnoVectorType typeOfData = QUATERNION);
 
     /*!< inline public methods */

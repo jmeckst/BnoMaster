@@ -22,6 +22,7 @@ string PORT = {};
 
 void ParseRestError(rerror r);
 void RunTest(TESTINFO ti);
+bool Setup();
 
 
 //! -------------------------------------------------------------------------------------------- //
@@ -35,32 +36,12 @@ void RunTest(TESTINFO ti);
 //!
 extern "C" void app_main()
 {
-    /*!< Network setup section, this is necessary for WiFi functionality */
-    if (NVS::OpenNVSPartition(NVS_PARTITION_NAME, NVS_NSNAME_NET) == ESP_OK)
+    if (!Setup())
     {
-        NVS::ReadNetConfig(SSID, PWD, SRV, PORT);
-        WIFI::WifiInit();
-        WIFI::WifiConnect(SSID, PWD);
-    }else {
-        cout << "Oops... unable to read net config from NVS!" << endl;
         while (1)
             Pause(10);
     }
     
-    /*!< Initialize UART and create BNO object */
-    UART::InitUART(UART_NUM_1, BNO_TX, BNO_RX);
-    bno = BnoModule(UART_NUM_1, BNO_TX, BNO_RX);
-
-    /*!< BNO setup section, this is critical for normal operation */
-    if (!bno.Setup(OPMODE_NDOF))
-    {
-        cout << "Oops... unable to initialize the BNO055!" << endl;
-        while (1)
-            Pause(10);
-    }else {
-        cout << "Success, Found BNO055!" << endl;
-    }
-
     /*!< Testing section, execution will not proceed past here */
     if (bno.IsTest())
     {
@@ -106,6 +87,7 @@ void ParseRestError(rerror r)
     {
     case REST_FAIL:
     case REST_OK:
+        cout << "REST: success communicating with server." << endl;
         break;
     case REST_CONNECT_FAIL:
         cout << "REST error: couldn't connect to server." << endl;
@@ -143,6 +125,8 @@ void ParseRestError(rerror r)
     case REST_MQTT_ERROR:
         cout << "REST error: an mqtt error has occured." << endl;
         break;
+    case REST_SERVER_ERROR:
+        cout << "REST error: an error occured with the server." << endl;
     }
 }
 
@@ -166,5 +150,40 @@ void RunTest(TESTINFO ti)
             ParseRestError(result);
         Pause(50);
     }
+}
+
+//! \fn     Setup
+//! \brief  This function performs setup for the app_main function, including
+//!         initializing UART, creating a BnoModule object, and reading config
+//!         options from NVS storage.
+//! \return <bool> success or failure.
+//!
+bool Setup()
+{
+    /*!< Initialize UART and create BNO object */
+    UART::InitUART(UART_NUM_1, BNO_TX, BNO_RX);
+    bno = BnoModule(UART_NUM_1, BNO_TX, BNO_RX);
+
+    /*!< BNO setup section, this is critical for normal operation */
+    if (!bno.Setup(OPMODE_NDOF))
+    {
+        cout << "Oops... unable to initialize the BNO055!" << endl;
+        return false;
+    }else {
+        cout << "Success, Found BNO055!" << endl;
+    }
+    
+    /*!< Network setup section, this is necessary for WiFi functionality */
+    if (NVS::OpenNVSPartition(NVS_PARTITION_NAME, NVS_NSNAME_NET) == ESP_OK)
+    {
+        NVS::ReadNetConfig(SSID, PWD, SRV, PORT);
+        WIFI::WifiInit();
+        WIFI::WifiConnect(SSID, PWD);
+    }else {
+        cout << "Oops... unable to read net config from NVS!" << endl;
+        return false;
+    }
+
+    return true;
 }
 

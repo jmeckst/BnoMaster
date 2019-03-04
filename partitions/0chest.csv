@@ -1,11 +1,11 @@
 key,type,encoding,value
-bnoNamespace,namespace,,
+deviceConfig,namespace,,
 deviceId,data,u16,1000
 deviceLoc,data,u8,0
 test,data,string,
-iter,data,u16,
+iter,data,u16,0
 netConfig,namespace,,
 ssid,data,string,I went to Portland and got VD
 pwd,data,string,password123
 srv,data,string,10.32.1.5
-port,data,string,8080
+port,data,string,1234

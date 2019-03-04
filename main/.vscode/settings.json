@@ -4,7 +4,9 @@
         "map": "cpp",
         "initializer_list": "cpp",
         "ostream": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "array": "cpp",
+        "*.tcc": "cpp"
     },
     "python.linting.enabled": false,
     "C_Cpp.dimInactiveRegions": true,

@@ -107,7 +107,7 @@ error ReadNVS(Func func, nvs_handle h, const char* key, string &out)
             out = string(str);
             delete str;
         }else {
-            cout << "Blank value found using key!" << endl;
+            cout << "Blank string found using key!" << endl;
             status = ESP_ERR_NVS_INVALID_LENGTH;
         }
     }else {

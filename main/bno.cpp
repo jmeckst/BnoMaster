@@ -82,24 +82,6 @@ bool BnoModule::Setup(bnoOpmode mode)
     return true;
 }
 
-//! \fn       GetMac
-//! \memberof BnoModule
-//! \brief    GetMac takes the device id and converts it to a 6 octet mac
-//!           address in hexadecimal. The first four octets are the same
-//!           for each sensor.
-//! \return   <addr> the std::array size 6
-//!
-addr BnoModule::GetMac()
-{
-    byte upper = deviceId >> 8;
-    byte lower = deviceId & 0xFF;
-
-    if (location == locChest)
-        return rootMacAddr;
-    else
-        return addr{0xDE, 0xAD, 0xBE, 0xEF, upper, lower};
-}
-
 //! \fn       GetReading
 //! \memberof BnoModule
 //! \brief    GetReading initiates retrieving an event that occurs on the IMU, 
@@ -307,7 +289,7 @@ uerror BnoModule::DigitalRead(bnoRegister reg, byte *buff, byte len)
     cmd[2] = static_cast<byte>(reg);
     cmd[3] = len;
 
-    for (int i = 0; i < LOOPCOUNT; i++)
+    for (int i = 0; i < UARTLOOPCOUNT; i++)
     {
         uart_flush(uaPort);
         uart_write_bytes(uaPort, (const char *)cmd, 4);
@@ -357,7 +339,7 @@ uerror BnoModule::DigitalWrite(bnoRegister reg, byte value, byte len)
     cmd[3] = len;
     CopyMemory(cmd + 4, &value, len);
 
-    for (int i = 0; i < LOOPCOUNT; i++)
+    for (int i = 0; i < UARTLOOPCOUNT; i++)
     {
         uart_flush(uaPort);
         uart_write_bytes(uaPort, (const char *)cmd, len + 4);

@@ -37,11 +37,11 @@ const string LENG = "Content-Length: \r\n";                 /*!< Content-Length,
 const string CONN = "Connection: Closed\r\n";               /*!< Connection, nothing further needed */
 const string NEWL = "\r\n";                                 /*!< newline for end of headers */
 
-const addr rootMacAddr{0x7A, 0x69, 0xDE, 0xAD, 0xBE, 0xEF};
-const byte BNO_ADDRESS_A = 0x28;
-const byte BNO_ADDRESS_B = 0x29;
-const byte BNO_ID        = 0xA0;
-const int  LOOPCOUNT     = 16;
+const byte BNO_ADDRESS_A  = 0x28;
+const byte BNO_ADDRESS_B  = 0x29;
+const byte BNO_ID         = 0xA0;
+const int  UARTLOOPCOUNT  = 16;
+const int  HTTP_RESP_SIZE = 32;
 
 const string NVS_PARTITION_NAME = "device_cfg";
 const string NVS_NSNAME_CONFIG  = "deviceConfig";
@@ -66,7 +66,8 @@ typedef enum {
     REST_REQUEST_LINEARA = 0x07,
     REST_REQUEST_GRAVITY = 0x08,
     REST_NO_WIFI         = 0x09,
-    REST_MQTT_ERROR      = 0x0A
+    REST_MQTT_ERROR      = 0x0A,
+    REST_SERVER_ERROR    = 0x0B
 }rerror;
 
 //! \enum Wifi status indicating either connected, or disconnected.

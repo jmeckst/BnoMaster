@@ -52,6 +52,7 @@ error NVS::OpenNVSPartition(string partName, string nsName)
         NVS_READONLY, 
         &handle
     );
+    
     return status;
 }
 

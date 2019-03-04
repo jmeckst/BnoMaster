@@ -2,8 +2,8 @@ key,type,encoding,value
 deviceConfig,namespace,,
 deviceId,data,u16,1007
 deviceLoc,data,u8,7
-test,data,string,Accel
-iter,data,u16,100
+test,data,string,
+iter,data,u16,0
 netConfig,namespace,,
 ssid,data,string,I went to Portland and got VD
 pwd,data,string,password123

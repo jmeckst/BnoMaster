@@ -30,6 +30,7 @@ using std::end;
 using std::endl;
 using std::equal;
 using std::fill;
+using std::flush;
 using std::initializer_list;
 using std::map;
 using std::ostringstream;

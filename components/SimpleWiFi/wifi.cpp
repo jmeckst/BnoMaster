@@ -144,9 +144,9 @@ bool WIFI::MESH::WifiIsRootNode()
 //!         mesh API function calls.
 //! \param  <string> the data to send.
 //!
-void WIFI::MESH::WifiMeshTxMain(string data)
+error WIFI::MESH::WifiMeshTxMain(string data)
 {
-    
+    return ESP_OK;
 }
 
 //! \fn     WifiMeshRxMain
@@ -154,7 +154,7 @@ void WIFI::MESH::WifiMeshTxMain(string data)
 //!         mesh API function calls.
 //! \return <vector<string>> the json array items
 //!
-strings WIFI::MESH::WifiMeshRxMain()
+strings WIFI::MESH::WifiMeshRxMain(int timeout)
 {
     return strings();
 }

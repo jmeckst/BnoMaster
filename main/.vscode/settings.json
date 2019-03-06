@@ -6,7 +6,8 @@
         "ostream": "cpp",
         "bitset": "cpp",
         "array": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "iostream": "cpp"
     },
     "python.linting.enabled": false,
     "C_Cpp.dimInactiveRegions": true,

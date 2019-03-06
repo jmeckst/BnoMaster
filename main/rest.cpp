@@ -30,7 +30,7 @@ strings FormatDataToJson(eventList events)
         data << "\t\t{";
         data << "\"type\":\"" << e->GetName()         << "\", ";
         data << "\"body\":\"" << e->GetLocation()     << "\", ";
-        data << "\"time\":\"" << esp_timer_get_time() << "\", ";
+        data << "\"ticks\":\"" << esp_timer_get_time() << "\", ";
         if (e->GetObject().IsQuaternion())
             data << "\"W\":\"" << e->GetObject().GetEventW() << "\", ";
         data << "\"X\":\"" << e->GetObject().GetEventX() << "\", ";
@@ -66,7 +66,7 @@ string FormatDataToJson(eventList events, strings extra)
         data << "\t\t{";
         data << "\"type\":\"" << e->GetName()         << "\", ";
         data << "\"body\":\"" << e->GetLocation()     << "\", ";
-        data << "\"time\":\"" << esp_timer_get_time() << "\", ";
+        data << "\"ticks\":\"" << esp_timer_get_time() << "\", ";
         if (e->GetObject().IsQuaternion())
             data << "\"W\":\"" << e->GetObject().GetEventW() << "\", ";
         data << "\"X\":\"" << e->GetObject().GetEventX() << "\", ";
@@ -157,24 +157,29 @@ void SendToServer(string headers, string data, string &output)
 
     if (connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr)) != 0)
     {
-        output = "1";
+        output = "7";
         goto cleanup;
     }
     cout << "Connected to socket!" << endl;
-    if (write(sock, headers.c_str(), headers.length()) < 0)
+    if (send(sock, headers.c_str(), headers.length(), 0) < 0)
     {
-        output = "2";
+        output = "8";
         goto cleanup;
     }else {
-        write(sock, data.c_str(), data.length());
+        send(sock, data.c_str(), data.length(), 0);
         cout << "Wrote headers and data!" << endl;
     }
 
-    read(sock, recvBuf, sizeof(recvBuf) - 1);
+    if (recv(sock, recvBuf, sizeof(recvBuf) - 1, 0) < 0)
+    {
+        output = "9";
+        goto cleanup;
+    }
     cout << "Read response!" << endl;
     output = ExtractHttpFieldValue("Response", string(recvBuf));
 
 cleanup:
+    shutdown(sock, 0);
     close(sock);
 }
 

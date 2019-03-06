@@ -33,6 +33,22 @@ extern BnoModule bno;
 //! \brief Functions section
 //!
 
+//! \fn    WaitForIp
+//! \brief This function simply waits for root to obtain an ip address by periodically checking
+//!        the meshRootGotIpBit bit.
+//! \param <EventBits_t> the caller event bits.
+//!
+void WaitForIp(EventBits_t eventBits)
+{
+    cout << "Waiting for IP address";
+    while ((eventBits & meshRootGotIpBit) == 0)
+    {
+        cout << "." << flush;
+        eventBits = xEventGroupWaitBits(meshEventGroup, meshRootGotIpBit, pdFALSE, pdTRUE, TICKSTOWAIT);
+    }
+    cout << endl << "Connected to access point!" << endl;
+}
+
 //! \fn     GetWifiChannel
 //! \brief  This function performs a wifi scan, and then cycles through all the scanned access
 //!         points, looking for the one with mesh associated data. This will be the softAp of the
@@ -255,17 +271,11 @@ void WIFI::WifiConnect(string sid, string pwd)
         eventBits = xEventGroupWaitBits(meshEventGroup, meshConnectedBit, pdFALSE, pdTRUE, TICKSTOWAIT);
     }
 
-    cout << "ESP32 connected to " << (WIFI::MESH::WifiIsMeshEnabled() ? "mesh network!" : "SSID!") << endl;
-
     if (esp_mesh_is_root())
-    {
-        cout << "Root waiting for IP address";
-        while ((eventBits & meshRootGotIpBit) == 0)
-        {
-            cout << "." << flush;
-            eventBits = xEventGroupWaitBits(meshEventGroup, meshRootGotIpBit, pdFALSE, pdTRUE, TICKSTOWAIT);
-        }
-    }
+        WaitForIp(eventBits);
+    else
+        cout << endl << "ESP32 connected to mesh network!" << endl;
+    
 }
 
 //! \fn    WifiDisconnect

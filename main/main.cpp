@@ -51,15 +51,15 @@ extern "C" void app_main()
     }
 
     /*!< Success, we've made it to regular output */
-    SensorEvent *quatern;
+    SensorEvent *event;
     string      jsonData;
     rerror      result;
     
     while (1)
     {
-        quatern = bno.GetReading();
+        event = bno.GetReading(LINEARACCEL);
 
-        result  = CreateReading(initializer_list<SensorEvent*>{quatern});
+        result  = CreateReading(initializer_list<SensorEvent*>{event});
         if (result != REST_OK)
             ParseRestError(result);
         
@@ -89,12 +89,6 @@ void ParseRestError(rerror r)
     case REST_OK:
         cout << "REST: success communicating with server." << endl;
         break;
-    case REST_CONNECT_FAIL:
-        cout << "REST error: couldn't connect to server." << endl;
-        break;
-    case REST_WRITE_FAIL:
-        cout << "REST error: socket error while sending." << endl;
-        break;
     case REST_REQUEST_ACCEL:
         e    = bno.GetReading(ACCELEROMETER);
         CreateReading(initializer_list<SensorEvent*>{e});
@@ -118,6 +112,15 @@ void ParseRestError(rerror r)
     case REST_REQUEST_GRAVITY:
         e    = bno.GetReading(GRAVITY);
         CreateReading(initializer_list<SensorEvent*>{e});
+        break;
+    case REST_CONNECT_FAIL:
+        cout << "REST error: couldn't connect to server." << endl;
+        break;
+    case REST_WRITE_FAIL:
+        cout << "REST error: socket error while sending." << endl;
+        break;
+    case REST_READ_FAIL:
+        cout << "REST error: socket error while receiving." << endl;
         break;
     case REST_NO_WIFI:
         cout << "REST error: not connected to WiFi." << endl;

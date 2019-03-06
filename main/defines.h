@@ -57,17 +57,18 @@ const string NVS_NSNAME_NET     = "netConfig";
 typedef enum {
     REST_FAIL            = -0x01,
     REST_OK              = 0x00,
-    REST_CONNECT_FAIL    = 0x01,
-    REST_WRITE_FAIL      = 0x02,
-    REST_REQUEST_ACCEL   = 0x03,
-    REST_REQUEST_MAG     = 0x04,
-    REST_REQUEST_GYRO    = 0x05,
-    REST_REQUEST_EULER   = 0x06,
-    REST_REQUEST_LINEARA = 0x07,
-    REST_REQUEST_GRAVITY = 0x08,
-    REST_NO_WIFI         = 0x09,
-    REST_MQTT_ERROR      = 0x0A,
-    REST_SERVER_ERROR    = 0x0B
+    REST_REQUEST_ACCEL   = 0x01,
+    REST_REQUEST_MAG     = 0x02,
+    REST_REQUEST_GYRO    = 0x03,
+    REST_REQUEST_EULER   = 0x04,
+    REST_REQUEST_LINEARA = 0x05,
+    REST_REQUEST_GRAVITY = 0x06,
+    REST_CONNECT_FAIL    = 0x07,
+    REST_WRITE_FAIL      = 0x08,
+    REST_READ_FAIL       = 0x09,
+    REST_NO_WIFI         = 0x0A,
+    REST_MQTT_ERROR      = 0x0B,
+    REST_SERVER_ERROR    = 0x0C
 }rerror;
 
 //! \enum Wifi status indicating either connected, or disconnected.

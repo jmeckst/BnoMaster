@@ -29,7 +29,8 @@
                 "/usr/include/c++/5",
                 "/usr/include/c++/5/tr1",
                 "/home/jason/esp/esp-idf/components/spiffs/test_spiffs_host/sdkconfig",
-                "/home/jmeckst/esp/esp-idf/components/esp_ringbuf/include"
+                "/home/jmeckst/esp/esp-idf/components/esp_ringbuf/include",
+                "/home/jmeckst/esp/esp-idf/components/freertos/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

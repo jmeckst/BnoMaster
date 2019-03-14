@@ -1,5 +1,33 @@
 # BnoMaster
 
+The BnoMaster is a c++ library written to run on the sparkfun esp32 thing, and connect to a Bosch BNO055 inertial measurement unit. Each operating mode of the BNO055 is available on the fly, as well as each power mode. The library then connects to a REST server to submit readings using CSV format.
+
+## Getting Started
+
+To get started, visit the espressif website below, and click the link "Get Started" to install the espressif esp-idf.
+
+```
+https://docs.espressif.com/projects/esp-idf/en/latest/
+```
+
+### Prerequisites
+
+C/C++
+GCC
+Python
+
+
+### Installing
+
+Once the esp-idf has been installed, continue with cloning the BnoMaster repository to begin building and deploying.
+
+```
+cd esp-idf/
+mkdir BnoMaster
+git clone https://github.com/jmeckst/BnoMaster
+```
+## Code Documentation
+
 /* ------------------------------------------------------------------------- */
 module map
 
@@ -27,35 +55,6 @@ bno
 /* ------------------------------------------------------------------------- */
 main
 
-# BnoMaster
-
-The BnoMaster is a c++ library written to run on the sparkfun esp32 thing, and connect to a Bosch BNO055 inertial measurement unit. Each operating mode of the BNO055 is available on the fly, as well as each power mode. The library then connects to a REST server to submit readings using CSV format.
-
-## Getting Started
-
-To get started, visit the espressif website below, and click the link "Get Started" to install the espressif esp-idf.
-
-```
-https://docs.espressif.com/projects/esp-idf/en/latest/
-```
-
-### Prerequisites
-
-C/C++
-GCC
-Python
-
-
-### Installing
-
-Once the esp-idf has been installed, continue with cloning the BnoMaster repository to begin building and deploying.
-
-```
-cd esp-idf/
-mkdir BnoMaster
-git clone https://github.com/jmeckst/BnoMaster
-```
-
 ## Running the tests
 
 Explain how to run the automated tests for this system
@@ -79,12 +78,6 @@ Give an example
 ## Deployment
 
 Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
 
 ## Versioning
 

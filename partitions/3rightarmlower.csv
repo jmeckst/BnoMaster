@@ -3,7 +3,6 @@ deviceConfig,namespace,,
 deviceId,data,u16,1003
 deviceLoc,data,u8,3
 test,data,string,
-iter,data,u16,0
 netConfig,namespace,,
 ssid,data,string,I went to Portland and got VD
 pwd,data,string,password123

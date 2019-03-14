@@ -21,13 +21,9 @@ typedef uart_port_t        uport;
 typedef array<byte, 6>     addr;
 typedef vector<string>     strings;
 typedef EventGroupHandle_t egHandle;
+typedef esp_timer_handle_t timerHandle;
 
-typedef initializer_list<class SensorEvent*> eventList;
-
-typedef struct testinfo {
-    string test;
-    word   numTests;
-}TESTINFO;
+typedef vector<class SensorEvent> eventList;
 
 const string POST = "POST /createReading HTTP/1.1\r\n";     /*!< POST field, no further additions needed */
 const string HOST = "Host: \r\n";                           /*!< HOST field, insert ip:port at pos 6 */
@@ -320,6 +316,9 @@ public:
     }
     Quaternion(double _w, double _x, double _y, double _z) { 
         w = _w; x = _x; y = _y; z = _z; isQuaternion = true;
+    }
+    Quaternion(const Quaternion& q) {
+        w = q.w; x = q.x; y = q.y; z = q.z; isQuaternion = q.isQuaternion;
     }
     
     bool   IsQuaternion() { return isQuaternion; }

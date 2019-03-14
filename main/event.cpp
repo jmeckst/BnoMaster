@@ -9,16 +9,21 @@
 
 
 //! \memberof SensorEvent
-//! \brief    This is the constructor that takes a quaternion pointer for 
-//!           a sensor reading.
+//! \brief    This is the default constructor and also the one that takes a quaternion 
+//!           pointer for a sensor reading.
 //! \params   Quaternion q, string n.
 //!
-SensorEvent::SensorEvent(Quaternion* q, string n, devLocation l)
+SensorEvent::SensorEvent()
 {
-    name = n;
-    obj  = q;
-    loc  = l;
+    ticks = esp_timer_get_time();
 }
+// SensorEvent::SensorEvent(Quaternion* q, string n, devLocation l)
+// {
+//     name  = n;
+//     obj   = q;
+//     loc   = l;
+//     ticks = esp_timer_get_time();
+// }
 
 //! \memberof SensorEvent
 //! \brief    This is the copy constructor that provides shallow copy 
@@ -27,10 +32,10 @@ SensorEvent::SensorEvent(Quaternion* q, string n, devLocation l)
 //!
 SensorEvent::SensorEvent(const SensorEvent& s)
 {
-    name        = s.name;
-
-    if (s.obj != nullptr)
-        obj = s.obj;
+    name  = s.name;
+    loc   = s.loc;
+    ticks = s.ticks;
+    obj   = s.obj;
 }
 
 //! \memberof SensorEvent
@@ -40,7 +45,5 @@ SensorEvent::SensorEvent(const SensorEvent& s)
 //!
 SensorEvent::~SensorEvent()
 {
-    if (obj != nullptr)
-        delete obj;
 }
 

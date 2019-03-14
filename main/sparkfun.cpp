@@ -61,7 +61,7 @@ error NVS::OpenNVSPartition(string partName, string nsName)
 //!         information. This information includes device id, and position information.
 //! \return <error> esp error code.
 //!
-error NVS::ReadDeviceConfig(byte &loc, word &id, TESTINFO &ti)
+error NVS::ReadDeviceConfig(byte &loc, word &id, string &test)
 {
     error status;
 
@@ -78,15 +78,10 @@ error NVS::ReadDeviceConfig(byte &loc, word &id, TESTINFO &ti)
         cout << "Device id retrieved!" << endl;
 
     /*!< Check for device test and iterations */
-    if ((status = ReadNVS(&nvs_get_str, handle, "test", ti.test)) != ESP_OK)
+    if ((status = ReadNVS(&nvs_get_str, handle, "test", test)) != ESP_OK)
         return status;
-    else {
-        /*!< Read test iterations using nvs_get_u16 */
-        if ((status = ReadNVS(&nvs_get_u16, handle, "iter", ti.numTests)) != ESP_OK)
-            return status;
-        else
-            cout << "Test iterations retrieved!" << endl;
-    }
+    else
+        cout << "Test retrieved!" << endl;
     return ESP_OK;
 }
 

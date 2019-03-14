@@ -12,6 +12,10 @@
 extern string SRV;
 extern string PORT;
 
+//! -------------------------------------------------------------------------------------------- //
+//! \brief Helper functions section
+//!
+
 //! \fn     FormatDataToJson
 //! \brief  This function takes the event objects from leaf nodes, reads their x, y,  
 //!         and z values, and formats them using proper json. This override only returns
@@ -19,30 +23,28 @@ extern string PORT;
 //! \param  <initializer_list> Any number of event objects.
 //! \return <vector<string>> A vector of strings.
 //!
-strings FormatDataToJson(eventList events)
+string FormatDataToJson(eventList events)
 {
     ostringstream data;
-    strings       result = {};
     int i = 1;
 
     for (auto e : events)
     {
         data << "\t\t{";
-        data << "\"type\":\"" << e->GetName()         << "\", ";
-        data << "\"body\":\"" << e->GetLocation()     << "\", ";
-        data << "\"ticks\":\"" << esp_timer_get_time() << "\", ";
-        if (e->GetObject().IsQuaternion())
-            data << "\"W\":\"" << e->GetObject().GetEventW() << "\", ";
-        data << "\"X\":\"" << e->GetObject().GetEventX() << "\", ";
-        data << "\"Y\":\"" << e->GetObject().GetEventY() << "\", ";
-        data << "\"Z\":\"" << e->GetObject().GetEventZ() << "\"";
+        data << "\"type\":\""  << e.GetName()     << "\", ";
+        data << "\"body\":\""  << e.GetLocation() << "\", ";
+        data << "\"ticks\":\"" << e.GetTicks()    << "\", ";
+        if (e.GetObject().IsQuaternion())
+            data << "\"W\":\"" << e.GetObject().GetEventW() << "\", ";
+        data << "\"X\":\""     << e.GetObject().GetEventX() << "\", ";
+        data << "\"Y\":\""     << e.GetObject().GetEventY() << "\", ";
+        data << "\"Z\":\""     << e.GetObject().GetEventZ() << "\"";
         data << "}";
         if (i < events.size())
             data << ",\n";
         i++;
-        result.push_back(data.str());
     }
-    return result;
+    return data.str();
 }
 
 //! \fn     FormatDataToJson
@@ -64,14 +66,14 @@ string FormatDataToJson(eventList events, strings extra)
     for (auto e : events)
     {
         data << "\t\t{";
-        data << "\"type\":\"" << e->GetName()         << "\", ";
-        data << "\"body\":\"" << e->GetLocation()     << "\", ";
-        data << "\"ticks\":\"" << esp_timer_get_time() << "\", ";
-        if (e->GetObject().IsQuaternion())
-            data << "\"W\":\"" << e->GetObject().GetEventW() << "\", ";
-        data << "\"X\":\"" << e->GetObject().GetEventX() << "\", ";
-        data << "\"Y\":\"" << e->GetObject().GetEventY() << "\", ";
-        data << "\"Z\":\"" << e->GetObject().GetEventZ() << "\"";
+        data << "\"type\":\""  << e.GetName()     << "\", ";
+        data << "\"body\":\""  << e.GetLocation() << "\", ";
+        data << "\"ticks\":\"" << e.GetTicks()    << "\", ";
+        if (e.GetObject().IsQuaternion())
+            data << "\"W\":\"" << e.GetObject().GetEventW() << "\", ";
+        data << "\"X\":\""     << e.GetObject().GetEventX() << "\", ";
+        data << "\"Y\":\""     << e.GetObject().GetEventY() << "\", ";
+        data << "\"Z\":\""     << e.GetObject().GetEventZ() << "\"";
         data << "}";
         if (i < events.size())
             data << ",\n";
@@ -83,7 +85,7 @@ string FormatDataToJson(eventList events, strings extra)
         for (auto e : extra)
         {
             data << ",\n";
-            data << e.data();
+            data << e;
         }
     }
 
@@ -135,20 +137,18 @@ string ExtractHttpFieldValue(string field, string response)
 }
 
 //! \fn     SendToServer
-//! \brief  This function handles communication with the server. If Mesh Wifi is
-//!         turned on, esp_mesh_send() is used, otherwise a standard socket. This
-//!         function abstracts those details from the CRUD functions so they can
-//!         perform any HTTP request without needing to worry about the method of
-//!         communication.
+//! \brief  This function handles communication with the server. It can perform any
+//!         HTTP method and abstracts those details from the CRUD functions so they can
+//!         simply provide the HTTP headers, and the data to be submitted.
 //! \params <string> headers
 //!         <string> data
-//!         <string> output
-//! \return <error>  esp_err_t
+//! \return <string> server response.
 //!
-void SendToServer(string headers, string data, string &output)
+string SendToServer(string headers, string data)
 {
-    char recvBuf[500] = {};
-    int  sock         = socket(AF_INET, SOCK_STREAM, 0);
+    char   recvBuf[500] = {};
+    int    sock         = socket(AF_INET, SOCK_STREAM, 0);
+    string output       = "";
 
     sockaddr_in addr;
     addr.sin_family      = AF_INET;
@@ -160,14 +160,12 @@ void SendToServer(string headers, string data, string &output)
         output = "7";
         goto cleanup;
     }
-    cout << "Connected to socket!" << endl;
     if (send(sock, headers.c_str(), headers.length(), 0) < 0)
     {
         output = "8";
         goto cleanup;
     }else {
         send(sock, data.c_str(), data.length(), 0);
-        cout << "Wrote headers and data!" << endl;
     }
 
     if (recv(sock, recvBuf, sizeof(recvBuf) - 1, 0) < 0)
@@ -175,13 +173,18 @@ void SendToServer(string headers, string data, string &output)
         output = "9";
         goto cleanup;
     }
-    cout << "Read response!" << endl;
     output = ExtractHttpFieldValue("Response", string(recvBuf));
 
 cleanup:
     shutdown(sock, 0);
     close(sock);
+
+    return output;
 }
+
+//! -------------------------------------------------------------------------------------------- //
+//! \brief CRUD section
+//!
 
 //! \fn     CreateReading
 //! \brief  This function handles POST'ing json data to the REST server.
@@ -200,27 +203,35 @@ rerror CreateReading(eventList events)
     /*!< Root Section */
     if (!WIFI::MESH::WifiIsMeshEnabled() || WIFI::MESH::WifiIsRootNode())
     {
-        meshData    = WIFI::MESH::WifiMeshRxMain(0);                        /*!< First, Rx the leaf node data */
+        cout << "Root node entered CreateReading!" << endl;
+        meshData    = WIFI::MESH::WifiMeshRxMain(0);                            /*!< First, Rx the leaf node data */
         string data = FormatDataToJson(events, meshData);
         string post = BuildPostHeaders(data.length());
 
-        SendToServer(post, data, response);                                 /*!< Second, Tx to server */
-        if (!response.empty())
+        //if (runTimes.size() > 0)
+        //{
+        //    for_each(runTimes.begin(), runTimes.end(), [&] (int n) {
+        //        avg += n;
+        //    });
+        //    avg /= runTimes.size();
+        //}
+
+        if ((response = SendToServer(post, data)) != string(""))                /*!< Second, Tx to server */
             result = static_cast<rerror>(atoi(response.c_str()));
 
-        WIFI::MESH::WifiMeshTxMain(response);                               /*!< Last, Tx the response to leaf nodes */
+        WIFI::MESH::WifiMeshTxMain(response);                                   /*!< Last, Tx the response to leaf nodes */
 
     /*!< Leaf node section */
     }else {
-        strings data = {};
+        cout << "Leaf node entered CreateReading!" << endl;
+        string data = {};
         data = FormatDataToJson(events);
 
-        for (auto d : data)                                                 /*!< First, Tx the data */
-            WIFI::MESH::WifiMeshTxMain(d);
+        WIFI::MESH::WifiMeshTxMain(data);                                       /*!< First, Tx the data */
 
-        meshData = WIFI::MESH::WifiMeshRxMain(portMAX_DELAY);               /*!< Second, Rx the response */
+        meshData = WIFI::MESH::WifiMeshRxMain(portMAX_DELAY);                   /*!< Second, Rx the response */
 
-        response = meshData.front();                                        /*!< The response is the first vector item */
+        response = meshData.front();                                            /*!< The response is the first vector item */
         if (!response.empty() && response.find("No data:") == string::npos)
             result = static_cast<rerror>(atoi(response.c_str()));
     }

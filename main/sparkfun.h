@@ -15,7 +15,7 @@ namespace UART {
 
 namespace NVS {
     error OpenNVSPartition(string partName, string nsName);
-    error ReadDeviceConfig(byte &loc, word &id, TESTINFO &ti);
+    error ReadDeviceConfig(byte &loc, word &id, string &test);
     error ReadNetConfig(string &ssid, string &pwd, string &srv, string &port);
 }
 

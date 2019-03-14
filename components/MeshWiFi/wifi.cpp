@@ -326,7 +326,7 @@ bool WIFI::MESH::WifiIsRootNode()
 error WIFI::MESH::WifiMeshTxMain(string data)
 {
     byte        txBuf[TX_SIZE]   = {};
-    int         flag             = 0;
+    int         flag             = {};
     int         tableSize        = 0;
     mesh_addr_t table[MAX_NODES + ADD_ROOT];
     mesh_data_t txData;
@@ -358,6 +358,7 @@ error WIFI::MESH::WifiMeshTxMain(string data)
         
         if (result != ESP_OK)
             return result;
+        cout << "\"esp_mesh_send\" sent message " << i + 1 << endl;
     }
     
     return ESP_OK;
@@ -384,11 +385,16 @@ strings WIFI::MESH::WifiMeshRxMain(int timeout)
 
     if (esp_mesh_is_root())
     {
-        int routingTableSize = esp_mesh_get_routing_table_size() - 1;
+        int32_t routingTableSize = esp_mesh_get_routing_table_size() - 1;
+        int64_t start {}, ticks {};
         while (pending.toSelf < routingTableSize)
         {
+            start = esp_timer_get_time();
             esp_mesh_get_rx_pending(&pending);
-            Pause(5);
+            Pause(10);
+            ticks += esp_timer_get_time() - start;
+            if (ticks > 500000)
+                break;
         }
     }
     
@@ -409,6 +415,7 @@ strings WIFI::MESH::WifiMeshRxMain(int timeout)
         }
         string temp(reinterpret_cast<char*>(rxData.data));
         response.push_back(temp);
+        cout << "\"esp_mesh_recv\" received message " << i + 1 << endl;
     }
 
     return response;

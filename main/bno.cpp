@@ -20,6 +20,7 @@ BnoModule::BnoModule(uport p, line tx, line rx)
     uaPort = p;
     txPin  = tx;
     rxPin  = rx;
+    test   = "LinearAccel";
 }
 
 //! \fn       Setup
@@ -90,13 +91,12 @@ bool BnoModule::Setup(bnoOpmode mode)
 //! \param    <SensorEvent> a pointer, <bnoVectorType> the sensor to read.
 //! \return   <bool> success or failure.
 //!
-SensorEvent* BnoModule::GetReading(bnoVectorType typeOfData)
+SensorEvent BnoModule::GetReading(bnoVectorType typeOfData)
 {
-    SensorEvent *e;
-    Quaternion  *obj;
+    SensorEvent e = {};
+    Quaternion  obj;
 
-    e = new SensorEvent();
-    e->SetLocation(location);
+    e.SetLocation(location);
 
     switch (typeOfData)
     {
@@ -105,22 +105,22 @@ SensorEvent* BnoModule::GetReading(bnoVectorType typeOfData)
     case GYROSCOPE:
         SetOprMode(OPMODE_AMG);
         obj = ReadVector(typeOfData);
-        e->SetObj(obj);
-        e->SetName(vectorToString.at(typeOfData));
+        e.SetObj(obj);
+        e.SetName(vectorToString.at(typeOfData));
         break;
     case QUATERNION:
         SetOprMode(OPMODE_NDOF);
         obj = ReadQuat();
-        e->SetObj(obj);
-        e->SetName("Quaternion");
+        e.SetObj(obj);
+        e.SetName("Quaternion");
         break;
     case EULER:
     case LINEARACCEL:
     case GRAVITY:
         SetOprMode(OPMODE_NDOF);
         obj = ReadVector(typeOfData);
-        e->SetObj(obj);
-        e->SetName(vectorToString.at(typeOfData));
+        e.SetObj(obj);
+        e.SetName(vectorToString.at(typeOfData));
         break;
     default:
         break;
@@ -136,7 +136,7 @@ SensorEvent* BnoModule::GetReading(bnoVectorType typeOfData)
 //!           object is created and returned to the user.
 //! \return   <Quaternion*> an object pointer.
 //!
-Quaternion* BnoModule::ReadQuat()
+Quaternion BnoModule::ReadQuat()
 {
     byte buffer[8];
     ZeroMemory(buffer, 8);
@@ -152,7 +152,7 @@ Quaternion* BnoModule::ReadQuat()
 
     const double scale = (1.0 / (1<<14));
 
-    return new Quaternion(scale * w, scale * x, scale * y, scale * z);
+    return Quaternion(scale * w, scale * x, scale * y, scale * z);
 }
 
 //! \fn       ReadVector
@@ -164,7 +164,7 @@ Quaternion* BnoModule::ReadQuat()
 //! \param    <bnoVectorType> the sensor memory address.
 //! \return   <Quaternion*> an object pointer.
 //!
-Quaternion* BnoModule::ReadVector(bnoVectorType whichSensor)
+Quaternion BnoModule::ReadVector(bnoVectorType whichSensor)
 {
     byte buffer[6];
     ZeroMemory(buffer, 6);
@@ -197,7 +197,7 @@ Quaternion* BnoModule::ReadVector(bnoVectorType whichSensor)
         break;
     }
 
-    return new Quaternion(x, y, z);
+    return Quaternion(x, y, z);
 }
 
 //! \fn       SetAxisRemap

@@ -1,3 +1,33 @@
+# Folders
 build/
+*.d
+
+# Compiled Object files
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
 *.bin
+
+# Misc
 .*
+.idea
+.vscode
+.~*
+.directory

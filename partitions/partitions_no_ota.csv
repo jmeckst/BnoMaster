@@ -2,4 +2,4 @@
 nvs,        data,   nvs,      ,        0x6000,
 phy_init,   data,   phy,      ,        0x1000,
 device_cfg, data,   nvs,      ,        0x3000,
-factory,    app,    factory,  ,        0x100800,
+factory,    app,    factory,  ,        0x102000,

@@ -23,17 +23,16 @@ public:
     BnoModule(uport p, line tx, line rx);
     
     bool         Setup     (bnoOpmode mode);
-    SensorEvent* GetReading(bnoVectorType typeOfData = QUATERNION);
+    SensorEvent  GetReading(bnoVectorType typeOfData = QUATERNION);
 
     /*!< inline public methods */
     bool         IsRoot    () { return deviceId == 1000; }
-    bool         IsTest    () { return !test.test.empty(); }
-    TESTINFO     GetTest   () { return test; }
+    string       GetTest   () { return test; }
     /*!< inline public methods */
 
 private:
-    Quaternion*  ReadQuat  ();
-    Quaternion*  ReadVector(bnoVectorType whichSensor);
+    Quaternion   ReadQuat  ();
+    Quaternion   ReadVector(bnoVectorType whichSensor);
 
     uerror SetAxisRemap(bnoAxisRemapConfig config);
     uerror SetAxisSign(bnoAxisRemapSign sign, bnoAxis axis);
@@ -43,12 +42,11 @@ private:
     uerror DigitalWrite(bnoRegister reg, byte value, byte len);
 
     /*<! Private Data Section */
+    string      test;
     byte        location;
     word        deviceId;
     line        txPin, rxPin;
     uport       uaPort;
     SensorEvent *event;
-
-    TESTINFO test;
 };
 

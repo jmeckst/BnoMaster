@@ -16,23 +16,25 @@
 class SensorEvent
 {
 public:
-    SensorEvent(){}
-    SensorEvent(Quaternion* q, string n, devLocation l);
+    SensorEvent();
+    //SensorEvent(Quaternion* q, string n, devLocation l);
 
-    SensorEvent(const SensorEvent& s);
+    SensorEvent(const SensorEvent&);
     ~SensorEvent();
 
-    Quaternion& GetObject()   { return *obj; }
+    Quaternion& GetObject()   { return obj; }
     string      GetName()     { return name; }
     string      GetLocation() { return locationToString.at(loc); }
+    int64_t     GetTicks()    { return ticks; }
 
-    void        SetObj(Quaternion *o) { obj = o; }
-    void        SetName(string n)     { name = n; }
-    void        SetLocation(byte l)   { loc = static_cast<devLocation>(l); }
+    void        SetObj(Quaternion o) { obj = o; }
+    void        SetName(string n)    { name = n; }
+    void        SetLocation(byte l)  { loc = static_cast<devLocation>(l); }
 
 private:
-    Quaternion* obj;                    /*!< Sensor object, either vector or quaternion */
+    Quaternion  obj;                    /*!< Sensor object, either vector or quaternion */
     string      name;                   /*!< Json name for post'ing to server */
     devLocation loc;
+    int64_t     ticks;
 };
 
